@@ -18,7 +18,7 @@ func main() {
 	}
 
 	nodeURL := os.Getenv("NODE_URL")
-	client, chainID := internal.Connect(nodeURL)
+	client, _ := internal.Connect(nodeURL)
 	defer internal.Disconnect(client)
 
 	contractAddress := os.Getenv("CONTRACT_ADDRESS")
@@ -31,12 +31,13 @@ func main() {
 	go internal.ExcListener(accumInstance, excChan)
 
 	privateKey := os.Getenv("DEPLOYER_PRIVATE_KEY")
+
 	accPK := os.Getenv("ACC_PRIVATE_KEY")
 	go func() {
-		time.Sleep(time.Minute)
-		internal.CallSendEthers(accumInstance, client, chainID, accPK)
 		time.Sleep(15 * time.Second)
-		internal.CallRecieve(accumInstance, client, chainID, accPK)
+		internal.CallSendEthersTwo(client, contractAddress, accPK)
+		time.Sleep(15 * time.Second)
+		internal.CallRecieveTwo(client, contractAddress, accPK)
 	}()
 	for {
 		select {
@@ -45,12 +46,12 @@ func main() {
 			fmt.Println("amount:", excEvent.Amount.String())
 			fmt.Println("message:", excEvent.Message)
 			fmt.Println("----------------------------------------")
-			internal.CallWithdrawEthers(accumInstance, client, chainID, privateKey)
+			internal.CallWithdrawEthersTwo(client, contractAddress, privateKey)
 		case addEvent := <-addChan:
 			fmt.Println("Получено событие Adding!")
 			fmt.Println("address:", addEvent.Address)
 			fmt.Println("amount:", addEvent.Amount.String())
-			balance := internal.CallCheckBalance(accumInstance)
+			balance := internal.CallCheckBalanceTwo(client, contractAddress)
 			fmt.Println("balance:", balance)
 			fmt.Println("----------------------------------------")
 		}
