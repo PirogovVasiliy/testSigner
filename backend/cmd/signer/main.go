@@ -18,11 +18,11 @@ func main() {
 	}
 
 	nodeURL := os.Getenv("NODE_URL")
-	privateKey := os.Getenv("DEPLOYER_PRIVATE_KEY")
 	client, chainID := internal.Connect(nodeURL)
 	defer internal.Disconnect(client)
 
-	accumInstance := internal.DeployContract(client, chainID, privateKey)
+	contractAddress := os.Getenv("CONTRACT_ADDRESS")
+	accumInstance := internal.GetDeployedContract(client, contractAddress)
 
 	addChan := make(chan internal.AddChanal)
 	excChan := make(chan internal.ExcChanal)
@@ -30,6 +30,7 @@ func main() {
 	go internal.AddListener(accumInstance, addChan)
 	go internal.ExcListener(accumInstance, excChan)
 
+	privateKey := os.Getenv("DEPLOYER_PRIVATE_KEY")
 	accPK := os.Getenv("ACC_PRIVATE_KEY")
 	go func() {
 		time.Sleep(time.Minute)

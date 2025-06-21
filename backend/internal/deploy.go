@@ -8,6 +8,7 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
@@ -36,10 +37,20 @@ func DeployContract(client *ethclient.Client, chainID *big.Int, privateKeyStr st
 		log.Fatalln("Ошибка при ожидании подтверждения транзакции!", err)
 	}
 
-	fmt.Println("Контракт успешно развернут")
+	fmt.Println("Контракт успешно развернут!")
 	fmt.Printf("Аккаунт деплоя (owner): %s\n", initialOwner.Hex())
 	fmt.Printf("Адрес контракта: %s\n", address.Hex())
 	fmt.Println("----------------------------------------")
 
 	return accumInstance
+}
+
+func GetDeployedContract(client *ethclient.Client, contractAddress string) *contract.Accum {
+	contr, err := contract.NewAccum(common.HexToAddress(contractAddress), client)
+	if err != nil {
+		log.Fatalln("Ошибка получения развернутого контракта!", err)
+	}
+	fmt.Println("Деплой контракта получен!")
+	fmt.Println("----------------------------------------")
+	return contr
 }
